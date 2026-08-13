@@ -1,0 +1,354 @@
+{
+  "name": "add to CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1tTi_OgdqGNYPkHnX1T0aphsThtfRtjdoxX_MU19QY7g",
+          "mode": "list",
+          "cachedResultName": "emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tTi_OgdqGNYPkHnX1T0aphsThtfRtjdoxX_MU19QY7g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tTi_OgdqGNYPkHnX1T0aphsThtfRtjdoxX_MU19QY7g/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {
+          "columnsToWatch": [
+            "state"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -64
+      ],
+      "id": "6755a6fd-4574-46c5-aa4d-c21cbb11198f",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "HYwIwuHOw45mdD80",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f90e6d25-3cdc-4b21-9e9b-b01cfae90bc4",
+              "leftValue": "={{ $json.state }}",
+              "rightValue": "done",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "5480da09-6004-4342-9499-cfbb3c9a7a18",
+              "leftValue": "={{ $json['notion id'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -112,
+        -64
+      ],
+      "id": "24a7db91-4e75-4021-91bf-7cdc0467b3f4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        112,
+        -80
+      ],
+      "id": "f7f3bb70-1308-49b7-a605-3e65267ce9c1",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b65c923-6945-807c-a716-000b33dd9a5b",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/3b65c923694580098404cf6804e9f198"
+        },
+        "title": "={{ $json.company }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.email }}"
+            },
+            {
+              "key": "name|rich_text",
+              "textContent": "={{ $json['name '] }}"
+            },
+            {
+              "key": "State|select",
+              "selectValue": "send email"
+            },
+            {
+              "key": "last communication |date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "jop title|rich_text",
+              "textContent": "= {{ $json.titile }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        384,
+        -64
+      ],
+      "id": "e5d066ce-3fe0-47c3-b080-8e1e1cecbcf1",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1tTi_OgdqGNYPkHnX1T0aphsThtfRtjdoxX_MU19QY7g",
+          "mode": "list",
+          "cachedResultName": "emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tTi_OgdqGNYPkHnX1T0aphsThtfRtjdoxX_MU19QY7g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tTi_OgdqGNYPkHnX1T0aphsThtfRtjdoxX_MU19QY7g/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "notion id": "={{ $json.id }}",
+            "email": "={{ $json.property_email }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "name ",
+              "displayName": "name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titile",
+              "displayName": "titile",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cold email",
+              "displayName": "cold email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notion id",
+              "displayName": "notion id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        -64
+      ],
+      "id": "c0097c9a-e28e-43df-8815-29f157a6ffda",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dIcGpr98rmJva2L0",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "25555b90-aefd-4491-96d2-dea835f16a9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "36e6a919b41c7730d07cd0015618e8fcdcf567d90125a965f516197eec905f2e"
+  },
+  "nodeGroups": [],
+  "id": "yAf4bxXL6TIC2m1J",
+  "tags": []
+}

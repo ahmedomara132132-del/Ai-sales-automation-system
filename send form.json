@@ -1,0 +1,181 @@
+{
+  "name": "send form",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "calendarId": {
+          "__rl": true,
+          "value": "ahmedomara132132@gmail.com",
+          "mode": "list",
+          "cachedResultName": "ahmedomara132132@gmail.com"
+        },
+        "triggerOn": "eventCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "d7f58ce7-6635-4eaf-9e71-4a6023fca9c8",
+      "name": "Google Calendar Trigger",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "hpEQJBJxsKAAH5yV",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b65c923-6945-807c-a716-000b33dd9a5b",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/3b65c923694580098404cf6804e9f198"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "ec003e6d-d482-45bd-aa94-4006296c1e64",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "State|select",
+              "selectValue": "meeting booked"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        32,
+        0
+      ],
+      "id": "732314bb-a966-410e-9342-930b6022cbf1",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7535777977",
+        "text": "=في واحد حجز ميتانج  دلوقتي  الايمال بتاعه  {{ $('Google Calendar Trigger').item.json.attendees[0].email }}\nو اللقاء الساعه {{ $('Google Calendar Trigger').item.json.start.dateTime }} ادخل اتاكد من كل البايانات \nو بعد ما تخلص املى ده https://omaran8n.omara.click/form/9fbb5971-d7bd-4565-9b99-e41959d636cd",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        0
+      ],
+      "id": "971d9f42-283e-4383-a40f-0db2185f15fc",
+      "name": "Send a text message",
+      "webhookId": "1d34f159-edb6-4efe-b489-e939da6e8509",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Calendar Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Africa/Cairo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "fd8358b5-a1f3-44dc-920d-758db7cbeb28",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "36e6a919b41c7730d07cd0015618e8fcdcf567d90125a965f516197eec905f2e"
+  },
+  "nodeGroups": [],
+  "id": "VCq8n7VqhrRljdh9",
+  "tags": []
+}

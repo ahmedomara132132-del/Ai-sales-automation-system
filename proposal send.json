@@ -1,0 +1,866 @@
+{
+  "name": "proposal send",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "After Meeting Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Agent Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Lead Interested?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name"
+            },
+            {
+              "fieldLabel": "Lead Name"
+            },
+            {
+              "fieldLabel": "Main Services to Offer",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI Agents"
+                  },
+                  {
+                    "option": "AI Automation"
+                  },
+                  {
+                    "option": "System Engineering"
+                  }
+                ]
+              },
+              "multiselect": true
+            },
+            {
+              "fieldLabel": "Prices to offer"
+            },
+            {
+              "fieldLabel": "Notes"
+            },
+            {
+              "fieldLabel": "Lead Email",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -48
+      ],
+      "id": "44aa9c12-3365-4897-b108-ece180616021",
+      "name": "On form submission",
+      "webhookId": "9fbb5971-d7bd-4565-9b99-e41959d636cd"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b65c923-6945-807c-a716-000b33dd9a5b",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/3b65c923694580098404cf6804e9f198"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "richTextValue": "={{ $json['Lead Email'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        160,
+        -48
+      ],
+      "id": "843d39c1-e4c9-4a0f-ad58-81886a60bafd",
+      "name": "Get many database pages",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ea953470-04bb-4c4c-b536-82e3af9b0f71",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        -48
+      ],
+      "id": "1f2a168b-6deb-495b-b0db-e80c45a87475",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "7535777977",
+        "text": "انت عاتب الايمال في الفورم غلط اعمل الفورم تاني ",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        48
+      ],
+      "id": "3cc657dd-1ef4-413f-b5d5-a1b25dc7b90a",
+      "name": "Send a text message",
+      "webhookId": "1099e1e2-4d24-4aa9-bd54-40403eb4d27d",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('On form submission').item.json['Lead Interested?'] }}",
+                    "rightValue": "Yes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c4ed4ef9-1e71-4db0-ac59-a2f73e21683d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "yes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9913927b-c54c-4152-9b65-72ed80bbc753",
+                    "leftValue": "={{ $('On form submission').item.json['Lead Interested?'] }}",
+                    "rightValue": "No",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "508b029b-0b9d-4b90-b4fd-0ab173689148",
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        -144
+      ],
+      "id": "7d209c88-3609-43ec-a5a6-ac5727782fc0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Get many database pages').item.json.id }}",
+          "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "State|select",
+              "selectValue": "drop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        864,
+        16
+      ],
+      "id": "60009e4c-937e-4a4e-af55-0bcd54430642",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "\n{\"client_name\":\"Omara\",\n  \"company_name\":\"xyz\"\n  ,\"problems\":\n  [\n    \"العمليات اليدوية في تحديد الأحجام تؤدي إلى بطء الإنتاجية.\"\n    ,\"نقص الكفاءة في سير العمل يسبب تأخيرات وتكاليف إضافية.\"\n    ,\"ارتفاع معدلات الأخطاء في عمليات القياس يعرقل جودة المنتج.\"\n  ],\n  \"services\":\"تطبيق وكلاء ذكاء اصطناعي متقدم لتأتمتة عمليات تحديد الأحجام، تحسين سير العمل، وزيادة الإنتاجية الكلية.\",\n  \"pricing_model\":\"50 جنيه شهريًا لمدة ستة أشهر\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1104,
+        -208
+      ],
+      "id": "f16253eb-d92d-4b8b-b0d2-ee10fc58575b",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Company Name: {{ $('On form submission').item.json['Company Name'] }}\nFocal Person: {{ $('On form submission').item.json['Lead Name'] }}\nServices They are interested in: {{ $('On form submission').item.json['Main Services to Offer'] }}\nPrices we will offer: {{ $('On form submission').item.json['Prices to offer'] }}\nNotes from the meeting: {{ $('On form submission').item.json.Notes }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a proposal-generation assistant.  \nYour job is to take structured input from a sales agent (notes, client details, company name, focal person, services, and pricing) and output ONLY a valid JSON object.  Do not add explanations, text outside JSON, or comments.  Each JSON key corresponds to a placeholder in the proposal template.   \n\nTemplate Placeholders: \n- [Client Name] \n- [Company Name] \n- [problem 1], [problem 2], [problem 3] \n- [Services] \n- [Pricing Model]  \n\n### JSON Structure to Output: \n{   \"client_name\": \"<string – replaces [Client Name]>\",   \n\"company_name\": \"<string – replaces [Company Name]>\",   \n\"problems\": [\"<string – replaces [problem 1]>\",     \"<string – replaces [problem 2]>\",     \"<string – replaces [problem 3]>\"   ],\n\"services\": \"<string – replaces [Services] and make it more professional and explained>\",   \n\"pricing_model\": \"<string – replaces [Pricing Model]>\" }  \n\n### Rules: \n- Always return 3 problems (if fewer provided, expand briefly based on notes). \n- Keep phrasing professional and business-friendly. \n- Never output placeholders like [Client Name]; replace them with actual values from input. \n- Output must always be valid JSON.\n- Rewrite every thing in an aatractive way and sales encouraging"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        848,
+        -384
+      ],
+      "id": "5caa8a67-f409-441e-bbee-2d649e9444eb",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b:free",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -560
+      ],
+      "id": "543c6416-373a-4b5c-bfb5-38a45128efc3",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "yOdSQGhZw2Xf7Ng0",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -176
+      ],
+      "id": "d7ef5529-2ca8-4f61-8924-49cf8c7a5f74",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "iI70j6OhKoE9tMzG",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1gUa7z2ThEOVLVtq3t5xO3SncgUZfAoM1Zt7Id1C7Gus",
+          "mode": "list",
+          "cachedResultName": "Proposal+Template",
+          "cachedResultUrl": "https://docs.google.com/document/d/1gUa7z2ThEOVLVtq3t5xO3SncgUZfAoM1Zt7Id1C7Gus/edit?usp=drivesdk"
+        },
+        "name": "={{ $json.output.company_name }}_proposal",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1216,
+        -384
+      ],
+      "id": "956a4c02-2189-4509-8ebe-f346d3ac0d58",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MSxuGpBkrB5Hr39M",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Basic LLM Chain1').item.json.output.company_name }} - Proposal - AAutomation with Karim",
+        "message": "=Email to send to: {{ $('On form submission').item.json['Lead Email'] }}\n\nDear {{ $('On form submission').item.json['Lead Name'] }},\nIt was a great honor to meet you and to get to know more about {{ $('On form submission').item.json['Company Name'] }}.\nAs discussed, Please find attached our proposal.\n\nThanks,\nKarim Nabil\nBD Manager\n",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "proposal"
+              }
+            ]
+          },
+          "sendTo": "={{ $('On form submission').item.json['Lead Email'] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1888,
+        -384
+      ],
+      "id": "b377f060-8552-4fc0-88c5-c5ea270a0004",
+      "name": "Create a draft1",
+      "webhookId": "7f6660d8-9a20-4db1-90f4-08e809adff99",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WazfWrbssZcHL0Nm",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "proposal",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          },
+          "fileName": "proposal.pdf"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1696,
+        -384
+      ],
+      "id": "509144a0-0c87-4f01-ab2c-c44a62761f91",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MSxuGpBkrB5Hr39M",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Get many database pages').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "State|select",
+              "selectValue": "proposal ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2096,
+        -384
+      ],
+      "id": "f8f19e3f-6ce4-4cc8-89ef-5126d5383293",
+      "name": "Update a database page6",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7535777977",
+        "text": "=Proposal for {{ $json.property_name }} is ready and drafted in your email for {{ $json.property_email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2304,
+        -384
+      ],
+      "id": "f19b859e-3841-43e9-b8e4-08b192db1623",
+      "name": "Send a text message4",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "[Client Name]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.client_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Company Name]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.company_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[problem 1]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.problems[0] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[problem 2]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.problems[1] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[problem 3]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.problems[2] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Services]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.services }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Pricing Model]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.output.pricing_model }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        -384
+      ],
+      "id": "dc8be6f6-cdf8-4d24-9fe4-f31d2614d57d",
+      "name": "Update a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ikGBH1yB9i4aj0Ij",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Get many database pages": [
+      {
+        "json": {
+          "id": "3b75c923-6945-81e3-8a1c-f26094848881",
+          "name": "xyz",
+          "url": "https://app.notion.com/p/xyz-3b75c923694581e38a1cf26094848881",
+          "property_jop_title": " Sales Account Manager",
+          "property_name": "Ahmed Bondok",
+          "property_state": "meeting link send",
+          "property_next_communication": false,
+          "property_last_communication": {
+            "start": "2026-08-11T23:44:00.000+03:00",
+            "end": null,
+            "time_zone": null
+          },
+          "property_email": "ahmedomara132132@gmail.com",
+          "property_company": "xyz"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "On form submission": [
+      {
+        "json": {
+          "Agent Name": "ahmed",
+          "Lead Interested?": "Yes",
+          "Company Name": "xyz",
+          "Lead Name": "omara",
+          "Main Services to Offer": [
+            "AI Agents"
+          ],
+          "Prices to offer": "50جنيه / الشهر  لمه 6 شهور ",
+          "Notes": "هو مهتم انو ياتمت عمليات السيز لكي يزيد الانتاجيه ",
+          "Lead Email": "ahmedomara132132@gmail.com",
+          "submittedAt": "2026-08-12T11:15:49.010-04:00",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Basic LLM Chain1": [
+      {
+        "json": {
+          "output": {
+            "client_name": "Omara",
+            "company_name": "xyz",
+            "problems": [
+              "Manual, time‑consuming processes limiting operational efficiency",
+              "Inconsistent throughput that hampers scaling of production",
+              "Difficulty maintaining data accuracy across repetitive tasks"
+            ],
+            "services": "Deploying intelligent AI Agents to automate routine workflows, streamline operations, and unlock higher productivity.",
+            "pricing_model": "50 EGP per month for a 6‑month commitment"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Copy file": [
+      {
+        "json": {
+          "kind": "drive#file",
+          "id": "1F64cFxequEQ-7bxkJTa1l1NI-W5db6gWD4ymnFwN7_0",
+          "name": "xyz_proposal",
+          "mimeType": "application/vnd.google-apps.document"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Update a document1": [
+      {
+        "json": {
+          "occurrencesChanged": 2,
+          "documentId": "1F64cFxequEQ-7bxkJTa1l1NI-W5db6gWD4ymnFwN7_0"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Download file1": [
+      {
+        "json": {
+          "occurrencesChanged": 2,
+          "documentId": "1F64cFxequEQ-7bxkJTa1l1NI-W5db6gWD4ymnFwN7_0"
+        },
+        "binary": {
+          "proposal": {
+            "mimeType": "application/pdf",
+            "fileType": "pdf",
+            "fileExtension": "pdf",
+            "data": "filesystem-v2",
+            "fileName": "proposal.pdf",
+            "id": "filesystem-v2:workflows/qBs0zh4UvwqSmitE/executions/185/binary_data/844b48c1-52fb-4ce5-b351-11e61119a51e",
+            "fileSize": "56 kB",
+            "bytes": 56016
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft1": {
+      "main": [
+        [
+          {
+            "node": "Update a database page6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page6": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document1": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "03490923-ca14-44df-9ae5-6acefafc63a3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "36e6a919b41c7730d07cd0015618e8fcdcf567d90125a965f516197eec905f2e"
+  },
+  "nodeGroups": [],
+  "id": "qBs0zh4UvwqSmitE",
+  "tags": []
+}

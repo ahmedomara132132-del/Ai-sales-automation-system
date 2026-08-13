@@ -1,0 +1,455 @@
+{
+  "name": "follow up",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "event": "pagedUpdatedInDatabase",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b65c923-6945-807c-a716-000b33dd9a5b",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/3b65c923694580098404cf6804e9f198"
+        }
+      },
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -16
+      ],
+      "id": "6d848d5c-c5e7-4d25-82df-f49dca6f29e5",
+      "name": "Notion Trigger",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        16,
+        -16
+      ],
+      "id": "b40ce8a1-b0f9-4bce-9f9a-8d556e960874",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "de3c96e0-34f3-40f8-9377-500502a4bca5",
+              "leftValue": "={{ $json['next communication '] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        0
+      ],
+      "id": "715d7266-3623-4acb-a2bb-219531d9a8eb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.State }}",
+                    "rightValue": "send email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "7bd51e04-3e5b-414f-b002-f8b7e05cf342"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "follow"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "06485e74-4ae7-4748-8e26-b3cc99105c45",
+                    "leftValue": "={{ $json.State }}",
+                    "rightValue": "follow up",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "drop"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "033ecf92-40d6-44d2-87d6-ce1fc6263c61",
+                    "leftValue": "={{ $json.State }}",
+                    "rightValue": "meeting link send",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "meeting send"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        -96
+      ],
+      "id": "853f92da-8ad6-4e0e-9602-ea0920068c2a",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "re:عرض تعاون",
+        "message": "=<!DOCTYPE html> <html> <head>   <meta charset=\"UTF-8\">   <title>Gentle Reminder</title> </head> <body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px;\">   <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);\">     <tr>       <td style=\"padding: 20px;\">                  <p style=\"font-size: 16px; margin-bottom: 16px;\">Dear {{ $json.Name }},</p>                  <p style=\"font-size: 15px; margin-bottom: 16px;\">           I hope this message finds you well.            I just wanted to kindly follow up regarding my previous email.            When you have a chance, I would greatly appreciate your update or guidance on the matter.          </p>          <p style=\"font-size: 15px; margin-bottom: 16px;\">           Please let me know if you need any additional details from my side.          </p>                  <p style=\"font-size: 15px; margin-bottom: 24px;\">           Thank you for your time and attention, and I look forward to hearing from you.         </p>                  <p style=\"font-size: 15px; margin-bottom: 8px;\">Best regards,</p>         <p style=\"font-size: 15px; font-weight: bold; margin: 0;\">Karim Nabil</p>         <p style=\"font-size: 14px; margin: 0;\">AI Product Manager / iWork</p>         <p style=\"font-size: 14px; margin: 0;\">+21020000</p>        </td>     </tr>   </table> </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        -192
+      ],
+      "id": "9973775f-4ddc-44ad-bdc1-5430f785ac59",
+      "name": "Send a message",
+      "webhookId": "62b0bed4-ef3c-4043-8f7c-3409651e0272",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WazfWrbssZcHL0Nm",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Switch').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "last communication |date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "State|select",
+              "selectValue": "follow up"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        112
+      ],
+      "id": "3d3f1c7b-c910-4d71-94b5-fbe4cabe6bdb",
+      "name": "Update a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "last communication |date",
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "State|select",
+              "selectValue": "drop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        816,
+        80
+      ],
+      "id": "2ec72def-2d4e-4166-9da9-4302be75fef2",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7535777977",
+        "text": "=ده عميل مهم و اتبعتلو لينك الحجز بس شكله انشغل فمحتاجين نفكره قبل ما يروح \nده الايميل :{{ $('Notion Trigger').item.json.Email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        864,
+        304
+      ],
+      "id": "012b2fc1-dec0-4470-8104-e8ed3ccf1e0c",
+      "name": "Send a text message",
+      "webhookId": "8a706c83-99c9-437f-9c19-d7760c7d4151",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Notion Trigger": [
+      {
+        "json": {
+          "id": "3b75c923-6945-812c-ac21-f10aa1d2ffa4",
+          "jop title": " n8n expert",
+          "name": "oamara",
+          "State": "meeting link send",
+          "next communication ": true,
+          "last communication ": {
+            "start": "2026-08-03T09:47:00.000-04:00",
+            "end": null,
+            "time_zone": null
+          },
+          "Email": "1ahmed2omara132@gmail.com",
+          "company": "ssd"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Notion Trigger": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a0dab61a-3efe-4ca9-a009-2cd65d1d706d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "36e6a919b41c7730d07cd0015618e8fcdcf567d90125a965f516197eec905f2e"
+  },
+  "nodeGroups": [],
+  "id": "D6DsKJcTZ8JcXiWk",
+  "tags": [
+    {
+      "updatedAt": "2026-08-09T19:42:33.335Z",
+      "createdAt": "2026-08-09T19:42:33.335Z",
+      "id": "9rbLufnGKeknyfe1",
+      "name": "sales automation"
+    }
+  ]
+}

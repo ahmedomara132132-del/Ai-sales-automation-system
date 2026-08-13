@@ -1,0 +1,680 @@
+{
+  "name": "reply email in CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fe42bc69-bffd-4e71-8e9c-aef4f813254f",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WazfWrbssZcHL0Nm",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ea0f0b5a-b3c0-4464-a82f-258491aecf1f",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "عرض تعاون",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "1e0a1fae-2005-4b87-9cff-4bc8e8912ceb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b65c923-6945-807c-a716-000b33dd9a5b",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/3b65c923694580098404cf6804e9f198"
+        },
+        "returnAll": true,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "richTextValue": "={{ $json.From }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        672,
+        -16
+      ],
+      "id": "b72c5732-0207-4d3e-8e11-569db651ef0e",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.state }}",
+                    "rightValue": "=Interested",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "420e78f3-cb30-461c-8038-5ebab23442e5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "yes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fa005a0f-e5b3-44db-b06a-bc22ae752089",
+                    "leftValue": "={{ $json.output.state }}",
+                    "rightValue": "Not Interested",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        -16
+      ],
+      "id": "dfe5d328-110a-4980-9578-3e5ba09ca90e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Gmail Trigger').item.json.snippet }}",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You have recieved an email of our company lead. We want to classify it to {\"Interested\", \"Not Interested\"}.\n\n\"Interested\": Means that we can send him another email. Because he didn't say he is not interested or don't message me again.\n\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        880,
+        -16
+      ],
+      "id": "e88c0ff9-bb9a-4c13-a3fc-6d8d723cc76c",
+      "name": "Basic LLM Chain",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        640,
+        192
+      ],
+      "id": "76cbc661-3362-4229-be6e-a0a474c69964",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "yOdSQGhZw2Xf7Ng0",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "15f5fca4-b2aa-4c37-a282-ff3704cbaf9c",
+              "name": "email",
+              "value": "={{ $json.From.match(/<(.+)>/) ? $json.From.match(/<(.+)>/)[1] : $json.fieldName }}",
+              "type": "string"
+            },
+            {
+              "id": "3676db6b-c079-4883-a2ba-9c7c6ed78d6e",
+              "name": "email_body",
+              "value": "={{\n(() => {\n  const raw = $('Gmail Trigger').item.json.snippet || '';\n\n  // فك ترميز الـ HTML entities\n  let dec = raw\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&amp;/g, '&')\n    .replace(/&#39;/g, \"'\")\n    .replace(/&quot;/g, '\"');\n\n  // شيل الرموز المخفية (bidi control characters) اللي جيميل بيضيفها\n  dec = dec.replace(/[\\u200E\\u200F\\u202A-\\u202E]/g, '');\n\n  // شيل الجزء المقتبس اللي بيبدأ بـ \"On ... wrote:\" - من غير شرط بداية السطر\n  const cleaned = dec.replace(/\\bOn\\s.+?wrote:[\\s\\S]*/is, '').trim();\n\n  return cleaned;\n})()\n}}",
+              "type": "string"
+            },
+            {
+              "id": "e62b6b48-6fb7-411e-8886-71fc2a6c7828",
+              "name": "notion_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "4d45204b-c57a-4936-8d58-0b15040b9615",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"state\": {\n\t\t\t\"type\": \"string\",\n            \"enum\": [\"Interested\", \"Not Interested\"]\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        192
+      ],
+      "id": "2393af09-e37a-4898-8e4a-1e62771390eb",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        784,
+        192
+      ],
+      "id": "2392b0f5-d613-42cf-92c0-a7dbd64286fb",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "iI70j6OhKoE9tMzG",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Get many database pages').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "State|select",
+              "selectValue": "meeting link send"
+            },
+            {
+              "key": "last communication |date",
+              "date": "={{ $now }}",
+              "timezone": "Africa/Cairo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        1536,
+        -160
+      ],
+      "id": "a7aeed0e-c4f1-4e31-be44-58e165ac0436",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Get many database pages').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "State|select",
+              "selectValue": "drop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        1536,
+        48
+      ],
+      "id": "79b75215-6586-43cf-99c8-12c72c17b803",
+      "name": "Update a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.property_email }}",
+        "subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #222; max-width: 600px;\">\n\n  <p>Hi,</p>\n\n  <p>Thank you so much for getting back to me, I really appreciate it and I'd love to continue the conversation.</p>\n\n  <p>To go over the details and see how we can best help you, feel free to book a time that works for you here:</p>\n\n  <p style=\"text-align: center; margin: 30px 0;\">\n    <a href=\"https://calendar.app.google/EqguYyJWUYn2WmZs6\"\n       style=\"background-color: #1a73e8; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;\">\n      Book a Meeting\n    </a>\n  </p>\n\n  <p style=\"font-size: 12px; color: #777;\">\n    If the button above doesn't work, you can copy and paste this link into your browser:<br>\n    <a href=\"https://calendar.app.google/EqguYyJWUYn2WmZs6\" style=\"color: #1a73e8;\">https://calendar.app.google/EqguYyJWUYn2WmZs6</a>\n  </p>\n\n  <p>If you have any questions before the call, just reply to this email, I'm happy to help.</p>\n\n  <br><br>\n  <p style=\"margin:0;\">Best regards,</p>\n  <p style=\"margin:0; font-weight:bold;\">Eng. Ahmed</p>\n  <p style=\"margin:0; color:#555;\">Senior AI Engineer</p>\n\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        -160
+      ],
+      "id": "d617cf51-4fba-47fa-b750-d0584c1b1183",
+      "name": "Send a message",
+      "webhookId": "b2466552-da59-46e7-9829-fc279c14e5a2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WazfWrbssZcHL0Nm",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b85c923-6945-80bf-ab01-000b66b1c9bd",
+          "mode": "list",
+          "cachedResultName": "task",
+          "cachedResultUrl": "https://app.notion.com/p/3b85c9236945801998e0d5a154ea33d4"
+        },
+        "title": "omara",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "email|email",
+              "emailValue": "={{ $('Edit Fields').item.json.email }}"
+            },
+            {
+              "key": "reply|rich_text",
+              "textContent": "={{ $('Edit Fields').item.json.email_body }}"
+            },
+            {
+              "key": "state|select",
+              "selectValue": "meeting send"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        1936,
+        -160
+      ],
+      "id": "1d5f8253-64e4-484c-b71d-26d68d3c0724",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7535777977",
+        "text": "=في واحد اتبعتلو يحجز لقاء فخد بالك منه وتابعو \nالايمال {{ $('Edit Fields').item.json.email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2160,
+        -160
+      ],
+      "id": "6a896b0d-5396-49c4-a33d-ddc8f2e46ef9",
+      "name": "Send a text message",
+      "webhookId": "79ef2955-4b82-4f78-ae16-d61c792981fb",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19fe7f66cbf3be40",
+          "threadId": "19fe7df41c54d396",
+          "snippet": "iam interesting ‪On Sun, Aug 9, 2026 at 9:53 PM ‫أحمد‬‎ &lt;ahmedomara132132@gmail.com&gt; wrote:‬ Hey Alex. Love your TL9000 partnership—also a fan of your case study on financial sector compliance.",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 3611,
+          "historyId": "78166",
+          "internalDate": "1786303113000",
+          "labels": [
+            {
+              "id": "SENT",
+              "name": "SENT"
+            },
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "Subject": "Re: عرض تعاون",
+          "From": "omara <ahmedomara132132@gmail.com>",
+          "To": "ahmedomara132132@gmail.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get many database pages": [
+      {
+        "json": {
+          "id": "3b75c923-6945-81e3-8a1c-f26094848881",
+          "name": "xyz",
+          "url": "https://app.notion.com/p/xyz-3b75c923694581e38a1cf26094848881",
+          "property_jop_title": " Sales Account Manager",
+          "property_name": "Ahmed Bondok",
+          "property_state": "send email",
+          "property_next_communication": false,
+          "property_last_communication": {
+            "start": "2026-08-08T20:15:00.000-04:00",
+            "end": null,
+            "time_zone": null
+          },
+          "property_email": "ahmedomara132132@gmail.com",
+          "property_company": "xyz"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Basic LLM Chain": [
+      {
+        "json": {
+          "output": {
+            "state": "Interested"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "79081639-d20e-48d3-ab02-7d5e17a4005f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "36e6a919b41c7730d07cd0015618e8fcdcf567d90125a965f516197eec905f2e"
+  },
+  "nodeGroups": [],
+  "id": "z2ouCTJdHmL2DA3l",
+  "tags": []
+}

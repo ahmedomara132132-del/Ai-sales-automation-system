@@ -1,0 +1,282 @@
+{
+  "name": "proposal accept",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1072,
+        16
+      ],
+      "id": "4fd2ab33-0b42-4a96-85c0-6466d120a72e",
+      "name": "Telegram Trigger",
+      "webhookId": "c51e47f4-d58f-4c67-9e88-1ef81e8afdc4",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Extract Email from the message.\n\nOUTPUT\n{\n\"email\": \"\"\n}\n\nRULES\nIf there is no email in the message, leave the output empty"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -864,
+        16
+      ],
+      "id": "ad786116-8f42-400a-9cde-1114c7f15765",
+      "name": "Basic LLM Chain6"
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        208
+      ],
+      "id": "22748371-bbcb-491c-af1c-7bf1fa0ef384",
+      "name": "OpenRouter Chat Model7",
+      "credentials": {
+        "openRouterApi": {
+          "id": "yOdSQGhZw2Xf7Ng0",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "State|select",
+              "selectValue": "proposal send"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        16,
+        0
+      ],
+      "id": "551ee316-f78d-412d-98c8-15d84b978678",
+      "name": "Update a database page7",
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "3b65c923-6945-8009-8404-cf6804e9f198",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://app.notion.com/p/3b65c923694580098404cf6804e9f198"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "c0f6e5f8-7679-4d61-9e5f-9c709a5d96e2",
+      "name": "Get many database pages3",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "rHgPGRAw6NYPZ9GN",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5cdb9e02-3699-4c97-a986-9280ca5dc6bf",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        16
+      ],
+      "id": "80cb8c86-82c1-4ca7-82b8-e57d60c9e403",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=ERROR: This email doesn't exist: {{ $('Basic LLM Chain6').item.json.email }}\nRecheck!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        272
+      ],
+      "id": "c18e9ed8-de9b-46b8-a182-5350431138e9",
+      "name": "Send a text message5",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "BP27ulT1qm76Rxmt",
+          "name": "عقارات"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain6": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain6",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages3": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Update a database page7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dc588258-e2d2-4dda-9778-b21947be7b0a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "36e6a919b41c7730d07cd0015618e8fcdcf567d90125a965f516197eec905f2e"
+  },
+  "nodeGroups": [],
+  "id": "wrYd7ji0fSRTdSfa",
+  "tags": []
+}
